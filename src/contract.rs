@@ -1,7 +1,7 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Order, Response, StdError, StdResult,
+    to_json_binary, Binary, Deps, DepsMut, Env, MessageInfo, Order, Response, StdError, StdResult,
 };
 use cw2::set_contract_version;
 
@@ -156,7 +156,7 @@ fn check_expirations(deps: DepsMut, env: Env, config: &Config, name: String) -> 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::GetWebsite { name } => to_binary(&query_website(deps, name)?),
+        QueryMsg::GetWebsite { name } => to_json_binary(&query_website(deps, name)?),
     }
 }
 
