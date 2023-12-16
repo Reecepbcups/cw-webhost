@@ -1,0 +1,1 @@
+60bd8dca07d41aba8cf7f168a1e1956dfe63e4eb10048f78b38c0d9ff7acf3c3  ./target/wasm32-unknown-unknown/release/cw_webhost.wasm

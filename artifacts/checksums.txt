@@ -1,0 +1,2 @@
+c840df15067463fafaf2dd62705123b504a75d95742abac7b82a0952cf3bbcda  clock_example.wasm
+637f6384e4f91a3ac88e69c94f6b8cb084e55ec0856b502a3fa9d83fa0e67f5e  cw_webhost.wasm
