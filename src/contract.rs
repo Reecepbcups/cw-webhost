@@ -3,11 +3,12 @@ use cosmwasm_std::entry_point;
 use cosmwasm_std::{
     to_json_binary, Binary, Deps, DepsMut, Env, MessageInfo, Order, Response, StdError, StdResult,
 };
+use sha2::{Digest, Sha256};
 use cw2::set_contract_version;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
-use crate::state::{Config, ExpireTimes, Website, CONFIG, EXPIRE_TIMES, WEBSITES};
+use crate::state::{Config, ExpireTimes, Website, CONFIG, EXPIRE_TIMES, WEBSITES, ShortLink, SHORT_LINKS};
 
 const CONTRACT_NAME: &str = "crates.io:cw-webhost";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -84,9 +85,7 @@ pub fn execute(
 
             // if there are no expirations, then it does not matter
             if config.period == 0 {
-                return Err(ContractError::Std(StdError::GenericErr {
-                    msg: "".to_string(),
-                }));
+                return Err(ContractError::NoExpirationPeriod {});
             }
 
             check_expirations(deps, env, &config, String::new())?;
@@ -102,6 +101,8 @@ pub fn execute(
             WEBSITES.remove(deps.storage, &name);
             Ok(Response::new())
         }
+
+        ExecuteMsg::CreateShortLink { url } => create_short_link(deps, env, info, url),
     }
 }
 
@@ -153,10 +154,34 @@ fn check_expirations(deps: DepsMut, env: Env, config: &Config, name: String) -> 
     Ok(())
 }
 
+fn create_short_link(deps: DepsMut, env: Env, info: MessageInfo, url: String) -> Result<Response, ContractError> {
+    let hash = generate_hash(&info.sender.to_string(), env.block.height, &url);
+    let short_link = ShortLink {
+        creator: info.sender.to_string(),
+        original_url: url,
+        created_height: env.block.height,
+    };
+
+    SHORT_LINKS.save(deps.storage, &hash, &short_link)?;
+
+    Ok(Response::new()
+        .add_attribute("action", "create_short_link")
+        .add_attribute("hash", hash))
+}
+
+fn generate_hash(uploader: &str, block: u64, url: &str) -> String {
+    let input = format!("{}:{}:{}", uploader, block, url);
+    let mut hasher = Sha256::new();
+    hasher.update(input.as_bytes());
+    let result = hasher.finalize();
+    hex::encode(&result[..8]) // I'm using the first 8 bytes of the hash.
+}
+
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::GetWebsite { name } => to_json_binary(&query_website(deps, name)?),
+        QueryMsg::GetShortLink { hash } => to_json_binary(&query_short_link(deps, hash)?),
     }
 }
 
@@ -167,4 +192,8 @@ fn query_website(deps: Deps, name: String) -> StdResult<Website> {
         Some(site) => Ok(site),
         None => Err(StdError::generic_err("No website found")),
     }
+}
+
+fn query_short_link(deps: Deps, hash: String) -> StdResult<ShortLink> {
+    SHORT_LINKS.load(deps.storage, &hash).map_err(|_| StdError::generic_err("No short link found"))
 }

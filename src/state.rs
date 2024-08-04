@@ -33,3 +33,12 @@ pub struct Config {
     pub period: u64,
 }
 pub const CONFIG: Item<Config> = Item::new("c");
+
+#[cw_serde]
+pub struct ShortLink {
+    pub creator: String,
+    pub original_url: String,
+    pub created_height: u64,
+}
+
+pub const SHORT_LINKS: Map<&str, ShortLink> = Map::new("sl");
