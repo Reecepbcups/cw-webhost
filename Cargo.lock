@@ -277,6 +277,8 @@ dependencies = [
  "cw-storage-plus",
  "cw-utils",
  "cw2",
+ "hex",
+ "sha2 0.10.7",
  "thiserror",
 ]
 

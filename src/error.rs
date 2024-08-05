@@ -17,4 +17,7 @@ pub enum ContractError {
 
     #[error("Website name '{name}' already exists")]
     AlreadyExists { name: String },
+
+    #[error("No expiration period set")]
+    NoExpirationPeriod {},
 }

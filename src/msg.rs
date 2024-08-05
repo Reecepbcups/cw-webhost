@@ -22,6 +22,7 @@ pub struct InstantiateMsg {
 pub enum ExecuteMsg {
     NewWebsite { name: String, source: String },
     ExpireOld {},
+    CreateShortLink { url: String },
 
     // admin only
     Remove { name: String },
@@ -32,4 +33,6 @@ pub enum ExecuteMsg {
 pub enum QueryMsg {
     #[returns(crate::state::Website)]
     GetWebsite { name: String },
+    #[returns(crate::state::ShortLink)]
+    GetShortLink { hash: String },
 }

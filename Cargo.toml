@@ -32,6 +32,8 @@ cw-storage-plus = "1.0.1"
 cw2 = "1.0.1"
 thiserror = { version = "1.0.31" }
 cw-utils ={ version = "1.0.3" }
+sha2 = "0.10.7"
+hex = "0.4.3"
 
 [dev-dependencies]
 cw-multi-test = "0.16.2"
